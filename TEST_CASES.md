@@ -1,6 +1,6 @@
-# 🧪 Docusaurus Setup, Deployment & Containerization - Test Cases
+#  Docusaurus Setup, Deployment & Containerization - Test Cases
 
-## 📌 Overview
+##  Overview
 This document outlines the **test cases** for the setup, deployment, and verification of a **Docusaurus-based documentation site** using:
 - **Podman** (for containerization)
 - **GitHub Pages** (for hosting)
@@ -12,224 +12,199 @@ Each test case follows the standard **Scenario - Given - When - Then** format fo
 
 ## **Test Cases**
 
-### **TC1: Verify Podman Installation**
-#### **📝 Scenario**  
+## **TC1: Verify Podman Installation**
+####  Scenario 
 Ensure that **Podman** is installed and accessible.
 
-#### **✅ Given**  
-- The system is **Linux-based**.
-- The user has **sudo access**.
+####  Given  
+ A Linux-based system with internet access.
 
-#### **📌 When**  
+
+####  When 
 The user executes:
-```sh
+```
 podman --version
-🎯 Then
+```
+###  Then
 The installed Podman version should be displayed.
 No errors should appear.
-📄 Expected Output
-nginx
-Copy
-Edit
+
+### Expected Output
+ 
 podman version 4.3.1
-TC2: Verify Docusaurus Installation
-📝 Scenario
+
+## TC2: Verify Docusaurus Installation
+### Scenario
 Ensure that Docusaurus is installed and the project is initialized.
 
-✅ Given
+#### Given
 Node.js is installed.
 The user has an active internet connection.
-📌 When
+#### When
 The user runs:
-
-sh
-Copy
-Edit
+```
 npx create-docusaurus@latest my-task classic
-🎯 Then
+```
+#### Then
 The project should be created in the my-task directory.
+
 The required project structure should be generated.
-📄 Expected Output
-perl
-Copy
-Edit
-✔ Success! Created my-task in ./my-task
-TC3: Verify Git Repository Initialization
-📝 Scenario
+#### Expected Output
+
+ Success! Created my-task in ./my-task
+ 
+## TC3: Verify Git Repository Initialization
+#### Scenario
 Ensure Git is initialized in the Docusaurus project.
 
-✅ Given
+#### Given
 Git is installed.
-📌 When
+#### When
 The user runs:
-
-sh
-Copy
-Edit
+```
 cd my-task
 git init
-🎯 Then
+```
+#### Then
 The repository should be successfully initialized.
-📄 Expected Output
-sql
-Copy
-Edit
+#### Expected Output
 Initialized empty Git repository in /home/user/my-task/.git/
-TC4: Validate GitHub Repository Connection
-📝 Scenario
+
+
+## TC4: Validate GitHub Repository Connection
+#### Scenario
 Ensure that the local repository is correctly linked to a GitHub repository.
 
-✅ Given
+#### Given
 A GitHub repository is created.
 The repository URL is known.
-📌 When
+#### When
 The user runs:
-
-sh
-Copy
-Edit
+```
 git remote -v
-🎯 Then
+```
+#### Then
 The correct GitHub repository URL should be displayed.
-📄 Expected Output
-perl
-Copy
-Edit
+#### Expected Output
 origin https://github.com/SagarRaghuvanshi31/my-task.git (fetch)
+
 origin https://github.com/SagarRaghuvanshi31/my-task.git (push)
-TC5: Verify Local Docusaurus Server Startup
-📝 Scenario
+
+## TC5: Verify Local Docusaurus Server Startup
+#### Scenario
 Ensure that the Docusaurus development server starts successfully.
 
-✅ Given
+#### Given
 The Docusaurus project has been initialized.
-📌 When
+#### When
 The user executes:
-
-sh
-Copy
-Edit
+```
 npm start
-🎯 Then
+```
+#### Then
 The site should be accessible at http://localhost:3000.
 No errors should occur.
-📄 Expected Output
-arduino
-Copy
-Edit
+#### Expected Output
 Docusaurus website is running at http://localhost:3000/
-TC6: Verify GitHub Pages Deployment
-📝 Scenario
+
+## TC6: Verify GitHub Pages Deployment
+#### Scenario
 Ensure that the Docusaurus site is successfully deployed to GitHub Pages.
 
-✅ Given
+#### Given
 The docusaurus.config.js file is configured correctly.
 The GitHub Pages branch is enabled.
-📌 When
+#### When
 The user visits:
-
-perl
-Copy
-Edit
 https://SagarRaghuvanshi31.github.io/my-task/
-🎯 Then
+#### Then
 The deployed site should load correctly.
-TC7: Verify Podman Image Build
-📝 Scenario
+
+## TC7: Verify Podman Image Build
+#### Scenario
 Ensure the Docusaurus container image is built using Podman.
 
-✅ Given
+#### Given
 A valid Dockerfile is present.
-📌 When
+#### When
 The user runs:
-
-sh
-Copy
-Edit
+```
 podman build -t docusaurus-image .
-🎯 Then
+```
+#### Then
 The image should be successfully created.
-📄 Expected Output
-arduino
-Copy
-Edit
+#### Expected Output
 Successfully built docusaurus-image
-TC8: Verify Docusaurus Container Runs in Podman
-📝 Scenario
+
+## TC8: Verify Docusaurus Container Runs in Podman
+#### Scenario
 Ensure that the Docusaurus container starts successfully.
 
-✅ Given
+#### Given
 A Podman image is available.
-📌 When
+#### When
 The user executes:
-
-sh
-Copy
-Edit
+```
 podman run -d -p 3001:3000 --name docusaurus-container docusaurus-image
-🎯 Then
+```
+#### Then
 The site should be accessible at http://localhost:3001.
-TC9: Validate GitHub Actions Workflow Deployment
-📝 Scenario
+
+## TC9: Validate GitHub Actions Workflow Deployment
+#### Scenario
 Ensure that GitHub Actions successfully builds and deploys Docusaurus.
 
-✅ Given
+#### Given
 A valid .github/workflows/deploy.yml file exists.
-📌 When
+#### When
 The user pushes:
-
-sh
-Copy
-Edit
+```
 git add .github/workflows/deploy.yml
 git commit -m "Add GitHub Actions workflow"
 git push origin main
-🎯 Then
+```
+#### Then
 GitHub Actions should trigger the deployment.
-TC10: Verify Auto-Refresh Script Execution
-📝 Scenario
+
+## TC10: Verify Auto-Refresh Script Execution
+#### Scenario
 Ensure that Docusaurus automatically restarts when changes are detected.
 
-✅ Given
+#### Given
 A valid auto_refresh.sh script exists.
-📌 When
+#### When
 The user runs:
-
-sh
-Copy
-Edit
+```
 nohup ~/my-task/auto_refresh.sh > ~/my-task/refresh.log 2>&1 &
-🎯 Then
+```
+#### Then
 The site should restart automatically upon file changes.
-TC11: Validate GitHub Pages Configuration
-📝 Scenario
+
+## TC11: Validate GitHub Pages Configuration
+#### Scenario
 Ensure that docusaurus.config.js is correctly set for GitHub Pages.
 
-✅ Given
+#### Given
 A valid Docusaurus project.
-📌 When
+#### When
 The user reviews docusaurus.config.js.
 
-🎯 Then
+#### Then
 The file should contain:
-js
-Copy
-Edit
 url: 'https://SagarRaghuvanshi31.github.io',
 baseUrl: '/my-task/',
 deploymentBranch: 'gh-pages',
-TC12: Verify Docker Image Push to Docker Hub
-📝 Scenario
+
+## TC12: Verify Docker Image Push to Docker Hub
+#### Scenario
 Ensure that the Docusaurus container image is pushed to Docker Hub.
 
-✅ Given
+#### Given
 A valid Podman image exists.
-📌 When
+#### When
 The user executes:
-
-sh
-Copy
-Edit
+```
 podman push sagarraghuvanshi31/docusaurus-image:latest
-🎯 Then
+```
+#### Then
 The image should be successfully uploaded to Docker Hub.
