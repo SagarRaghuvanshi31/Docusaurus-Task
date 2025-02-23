@@ -1,243 +1,227 @@
- Implementation Journal (IMPLEMENTATION.md)
-md
-Copy
-Edit
-# 📖 Implementation Journal: Docusaurus Setup, Deployment, and Containerization  
+# Docusaurus Setup and Deployment with Gitea Webhook
 
-> **Author**: Sagar Raghuvanshi  
-> **Date**: February 16, 2025  
-> **Project**: Docusaurus Documentation Site  
+## 1. Install & Set Up Docusaurus Locally
 
-## 🔍 Overview  
-
-This document outlines the **step-by-step implementation** of setting up, deploying, and containerizing a **Docusaurus documentation site**. The goal is to:  
-
-- Set up a **Docusaurus site** locally  
-- Deploy the site using **GitHub Pages**  
-- Implement **automatic deployment** via **GitHub Actions**  
-- Containerize the site using **Podman**  
-
----
-
-## 📌 1. Docusaurus Setup  
-
-### 🔹 Step 1: Create a New Docusaurus Project  
-
-To create a **Docusaurus** project, I ran the following command:  
-
-```sh
+Run the following commands to create a new Docusaurus project and navigate into it:
+```
 npx create-docusaurus@latest my-task classic
 cd my-task
 npm install
-This initialized a Docusaurus site inside the my-task folder.
+```
+This will create a Docusaurus project inside the my-task folder.
 
-🔹 Step 2: Run the Development Server
-To test if the site runs correctly, I started the local server:
+## 2. Set Up Gitea & Push Code to Gitea Repository
 
-sh
-Copy
-Edit
-npm run start
-The site was accessible at:
-📍 http://localhost:3000
+### Step 1: Install Gitea
 
-📌 2. Setting Up GitHub Repository
-To enable version control, I initialized a Git repository and pushed the project to GitHub:
+If you haven't installed Gitea yet, you can do so by running:
+```
+sudo apt update
+sudo apt install gitea
+```
 
-sh
-Copy
-Edit
+### Start Gitea:
+
+```
+sudo systemctl enable --now gitea
+```
+Now, open your browser and go to http://localhost:3001/ to complete the Gitea setup.
+
+### Step 2: Create a Repository in Gitea
+
+Log in to your Gitea instance.
+Click on "New Repository".
+Set the repository name as my-task.
+Click Create Repository.
+
+### Step 3: Initialize Git and Push Code
+
+```
 cd my-task
 git init
-git remote add origin https://github.com/SagarRaghuvanshi31/my-task.git
+git remote add origin http://localhost:3001/Sagar31/my-task.git
 git branch -M main
 git add .
-git commit -m "Initial commit: Docusaurus setup"
+git commit -m "Initial Docusaurus setup"
 git push -u origin main
-📌 3. Configuring GitHub Pages Deployment
-🔹 Step 1: Modify docusaurus.config.js
-I updated the GitHub Pages configuration inside docusaurus.config.js:
+```
 
-js
-Copy
-Edit
+## 3. Update Docusaurus Configuration (docusaurus.config.js)
+
+Now, update the docusaurus.config.js file inside the my-task folder:
+
+```
+// @ts-check
+import { themes as prismThemes } from 'prism-react-renderer';
+
+/** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'Meri Docs Site',
-  url: 'https://SagarRaghuvanshi31.github.io',
+  url: 'http://localhost:3000',
   baseUrl: '/my-task/',
-  organizationName: 'SagarRaghuvanshi31',
+  organizationName: 'Sagar31',
   projectName: 'my-task',
   deploymentBranch: 'gh-pages',
+
+  onBrokenLinks: 'throw',
+  onBrokenMarkdownLinks: 'warn',
+  i18n: { defaultLocale: 'en', locales: ['en'] },
+
+  presets: [
+    [
+      'classic',
+      {
+        docs: { sidebarPath: require.resolve('./sidebars.js') },
+        blog: { showReadingTime: true },
+        theme: { customCss: require.resolve('./src/css/custom.css') },
+      },
+    ],
+  ],
+
+  themeConfig: {
+    navbar: {
+      title: 'Meri Docs Site',
+      logo: { alt: 'Logo', src: 'img/logo.svg' },
+      items: [
+        { type: 'docSidebar', sidebarId: 'tutorialSidebar', label: 'Tutorial', position: 'left' },
+        { to: '/blog', label: 'Blog', position: 'left' },
+        { href: 'http://localhost:3001/Sagar31/my-task', label: 'Gitea', position: 'right' },
+      ],
+    },
+    footer: {
+      style: 'dark',
+      links: [{ title: 'Docs', items: [{ label: 'Tutorial', to: '/docs/intro' }] }],
+      copyright: `(c) ${new Date().getFullYear()} Built with Docusaurus.`,
+    },
+    prism: { theme: prismThemes.github, darkTheme: prismThemes.dracula },
+  },
 };
 
 export default config;
-🔹 Step 2: Push the Changes
-sh
-Copy
-Edit
+```
+
+### Push Changes to Gitea
+
+```
 git add docusaurus.config.js
-git commit -m "Update Docusaurus config for GitHub Pages"
+git commit -m "Update Docusaurus config for Gitea"
 git push origin main
-📌 4. Automating Deployment with GitHub Actions
-🔹 Step 1: Create GitHub Actions Workflow
-I created a GitHub Actions workflow to deploy the site automatically.
+```
 
-sh
-Copy
-Edit
-mkdir -p .github/workflows
-nano .github/workflows/deploy.yml
-Inside deploy.yml, I added:
+## 4. Set Up Gitea Webhook for Auto Deployment
 
-yaml
-Copy
-Edit
-name: Deploy Docusaurus
+### Step 1: Create Webhook in Gitea
 
-on:
-  push:
-    branches:
-      - main
+Go to your Gitea repository (http://localhost:3001/Sagar31/my-task).
+Click on Settings → Webhooks → Add Webhook.
+Select Gitea.
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+### In the Target URL, enter:
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
+http://your-server-ip:3002/webhook
+Select Trigger on push events.
+Click Add Webhook.
 
-      - name: Install dependencies
-        run: npm install
+## Step 2: Set Up Webhook Server
 
-      - name: Build site
-        run: npm run build
+To handle webhook events, set up a simple Flask server:
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build
-🔹 Step 2: Push Workflow to GitHub
-sh
-Copy
-Edit
-git add .github/workflows/deploy.yml
-git commit -m "Add GitHub Actions for auto deployment"
-git push origin main
-🔹 Step 3: Enable GitHub Pages
-Open GitHub Repository → Settings → Pages
-Set Branch to gh-pages
-Click Save
-Now, the site was automatically deployed at:
-🌍 https://SagarRaghuvanshi31.github.io/my-task/
+```
+sudo apt install python3-flask -y
+nano webhook_server.py
+```
 
-📌 5. Setting Up Auto-Refresh for Local Development
-To automatically update the local site when new changes were pulled, I created an auto-refresh script:
+Paste this code:
 
-sh
-Copy
-Edit
-nano ~/my-task/auto_refresh.sh
-Added the following Bash script:
+```
+import os
+import subprocess
+from flask import Flask, request
 
-sh
-Copy
-Edit
-#!/bin/bash
-while true; do
-    echo "Checking for updates..."
-    git -C ~/my-task pull origin main | grep -q "Already up to date" || {
-        echo "Restarting Docusaurus..."
-        pkill -f "npm run start"
-        cd ~/my-task && nohup npm run start > ~/my-task/docusaurus.log 2>&1 &
-    }
-    sleep 1
-done
-Made it executable:
+app = Flask(__name__)
 
-sh
-Copy
-Edit
-chmod +x ~/my-task/auto_refresh.sh
-nohup ~/my-task/auto_refresh.sh > ~/my-task/refresh.log 2>&1 &
-📌 6. Containerizing Docusaurus with Podman
-🔹 Step 1: Create a Dockerfile
-sh
-Copy
-Edit
+REPO_PATH = "/home/youruser/my-task"  # Change this to the correct path
+
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    try:
+        subprocess.run(['git', '-C', REPO_PATH, 'pull', 'origin', 'main'], check=True)
+        return "Updated Successfully", 200
+    except subprocess.CalledProcessError as e:
+        return f" Error: {str(e)}", 500
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=3002)
+```
+
+### Save and start the server:
+
+```
+python3 webhook_server.py &
+```
+Now, every time you push to Gitea, the webhook will trigger an automatic update.
+
+## 5. Enable Gitea Pages for Deployment
+
+Go to Gitea Repository → Settings → Pages.
+Select the gh-pages branch under "Source".
+Click Save.
+
+## 6. Containerizing Docusaurus with Podman
+
+### Step 1: Create a Dockerfile
+
+```
 nano Dockerfile
-Inside Dockerfile:
+```
 
-dockerfile
-Copy
-Edit
+Add this:
+
+```
+# Base Image
 FROM node:18-alpine
 
+# Working directory
 WORKDIR /app
 
+# Copy project files
 COPY . .
 
+# Install dependencies
 RUN npm install
 
+# Expose port
 EXPOSE 3000
 
+# Start Docusaurus with 0.0.0.0 binding
 CMD ["npm", "start", "--", "--host", "0.0.0.0"]
-🔹 Step 2: Build the Podman Image
-sh
-Copy
-Edit
+```
+
+### Step 2: Build the Podman Image
+
+```
 podman build -t docusaurus-image .
-🔹 Step 3: Run the Container
-sh
-Copy
-Edit
-podman run -d -p 3001:3000 --name docusaurus-container docusaurus-image
-Verify if the container is running:
+```
 
-sh
-Copy
-Edit
-podman ps
-Test the running container:
+### Step 3: Run the Container
 
-sh
-Copy
-Edit
-curl http://localhost:3001
-📌 7. Pushing the Image to Docker Hub
-🔹 Step 1: Tag the Image
-sh
-Copy
-Edit
-podman tag localhost/docusaurus-image:latest sagarraghuvanshi31/docusaurus-image:latest
-🔹 Step 2: Login to Docker Hub
-sh
-Copy
-Edit
+```
+podman run -d -p 3000:3000 --name docusaurus-container docusaurus-image
+```
+
+Now, open http://localhost:3000 in your browser to see Docusaurus running inside the container.
+
+### Step 4: Push Image to Docker Hub
+
+```
 podman login docker.io
-🔹 Step 3: Push the Image
-sh
-Copy
-Edit
-podman push sagarraghuvanshi31/docusaurus-image:latest
-🔹 Step 4: Pull the Image
-sh
-Copy
-Edit
-docker pull sagarraghuvanshi31/docusaurus-image
-🎉 Final Outcome
-After successful implementation:
+podman tag localhost/docusaurus-image:latest Sagar31/docusaurus-image:latest
+podman push Sagar31/docusaurus-image:latest
+```
 
-Docusaurus site is live at:
-🌍 https://SagarRaghuvanshi31.github.io/my-task/
-Containerized version can be pulled using:
-sh
-Copy
-Edit
-docker pull sagarraghuvanshi31/docusaurus-image
-GitHub Actions ensures automatic deployments
+### Step 5: Pull Image
+
+```
+docker pull Sagar31/docusaurus-image
+```
+
